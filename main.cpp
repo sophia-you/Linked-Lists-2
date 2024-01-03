@@ -47,29 +47,42 @@ int main()
  * @param newstudent | this is the student value added to the
  * new node.
  */
-void add(Node* newNode, Node* prevNode, Node* &startNode)
+void add(Node* newNode, Node* prevNode, Node* currentNode, Node* &startNode)
 {
-  Node* currentNode = startNode;
-  if (currentNode == NULL) // if the current node is the first node in the list
+  Node* head = startNode;
+  int newID = newNode()->getstudent()->getID();
+  int prevID = prevNode->getStudent()->getID();
+  int nextID = prevNode->getNext()->getStudent()->getID();
+  if (head == NULL) // if the current node is the first node in the list
     {
       startNode = newNode; // the new student gets put into the start node
     }
-  else // the current node is not the first node
+  else if (newID < startNode->getStudent()->getID()) // the new node id is smaller than the head node
+        {
+           newNode->setNext(head); // set new node's next pointer to the current head
+           startNode = newNode; // set the starting node to new node
+        }
+  else
     {
-      if (currentNode->getNext()->getID() > newNode->getID()) // the node list is organized from least to greatest ID
+      if (prevID <= newID) // if the new node has a greater id than the previous node
 	{
-	  /*
-	   * let's say that Node A points to Node C, and we are trying to insert
-	   * Node B in between. We should save Node C in a new node, then set Node 
-	   A's next Node to Node B. Then we set Node B's next node to node C.
-	   */
-	  Node* nextNode = currentNode->getNext(); // save Node C here
-	  currentNode->setNext(new Node(newstudent)); // Node A now points to B
-	  currentNode = currentNode->getNext(); // move to Node B
-	  currentNode->setNext(nextNode); // set Node C as the node after B 
+	  if (prevNode->getNext() == NULL) // end of list
+	    {
+	      prevNode->setNext(newNode); // add node to end of list
+	    }
+	  else if (nextID > newID) // the new node goes in between the previous node and the next node
+	    {
+	      // insert in between prevNode and prevNode -> getNext()
+	      newNode->setNext(prevNode->getNext()); // the new node points to the next node
+	      prevNode->setNext(newNode); // the previous node points to the new node
+	    }
+	  else // the new node's id is larger than both the previous node and the next node
+	    {
+	      // keep going down the linked list, using recursion
+	      add(newNode, prevNode->getNext(), startNode);
+	    }
 	}
-      add(newNode, current // START HEREEEEE
-     }
+    }
 }
 
 /**

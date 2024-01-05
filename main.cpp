@@ -17,42 +17,11 @@ using namespace std;
 void add(Student* student, Node* prevNode, Node* currentNode,  Node* &startNode);
 void print(Node* nextNode, Node* &startNode);
 void remove(int id, Node* prevNode, Node* currentNode, Node* &startNode);
+void average(float &total, int &count, float mean, Node* currentNode, Node* &startNode);
 
 int main()
-{
-  // test if the node works
-  char* bobbieFirst = new char[20];
-  char* bobbieLast = new char[20];
-  strcpy(bobbieFirst, "bobbie");
-  strcpy(bobbieLast, "brown");
-  Student* bobbie = new Student(bobbieFirst, bobbieLast, 99, 4.0);
-
-  char* billFirst = new char[20];
-  char* billLast = new char[20];
-  strcpy(billFirst, "bill");
-  strcpy(billLast, "brown");
-  Student* bill = new Student(billFirst, billLast, 29, 4.0);
-
-  char* bretFirst = new char[20];
-  char* bretLast = new char[20];
-  strcpy(bretFirst, "bret");
-  strcpy(bretLast, "brown");
-  Student* bret = new Student(bretFirst, bretLast, 39, 4.0);
-
-  char* brianaFirst = new char[20];
-  char* brianaLast = new char[20];
-  strcpy(brianaFirst, "briana");
-  strcpy(brianaLast, "brown");
-  Student* briana = new Student(brianaFirst, brianaLast, 1039, 4.0);
-
-  Node* startNode = NULL; // this is the "head" node                                   
-  add(bobbie, startNode, startNode, startNode);
-  add(bill, startNode, startNode, startNode);
-  add(bret, startNode, startNode, startNode);
-  add(briana, startNode, startNode, startNode);
-  print(startNode, startNode);
-  remove(bret->getID(), startNode, startNode, startNode);
-  print(startNode, startNode);
+{ 
+  Node* startNode = NULL; // this is the "head" node                           
 
   bool editing = true; // while editing is true, the program runs
   while (editing)
@@ -64,6 +33,7 @@ int main()
       cout << "Type 'add' to add a student." << endl;
       cout << "Type 'delete' to delete a student." << endl;
       cout << "Type 'print' to print the student roster." << endl;
+      cout << "type 'average' to print the school's average GPA." << endl;
       cout << "Type 'quit' to exit editing mode." << endl;
       cin.getline(input, max);
       int length = strlen(input);
@@ -71,13 +41,53 @@ int main()
 
       if (strcmp(input, "add") == 0)
 	{
+	  int max = 50;
+	  char input[max];
+	  char* first = new char[25];
+          char* last = new char[50];
+	  int id = 0;
+	  float gpa = 0.0;
+
+	  // prompt for student information
+	  cout << "Enter student information: " << endl;
+	  cout << "First name: " << endl;
+	  cin.getline(input, max);
+	  strcpy(first, input);
+	  cout << "Last name: " << endl;
+	  cin.getline(input, max);
+	  strcpy(last, input);
+	  cout << "Student ID: " << endl;
+	  cin >> id;
+	  cin.ignore(max, '\n');
+	  cout << "Student GPA:" << endl;
+	  cin >> gpa;
+          cin.ignore(max, '\n');
+
+	  Student* student = new Student(first, last, id, gpa);
+	  add(student, startNode, startNode, startNode);
 	  
 	}
       else if (strcmp(input, "delete") == 0)
 	{
+	  int id = 0;
+	  cout << "enter the ID of the student you want to delete." << endl;
+	  cin >> id;
+	  cin.ignore(25, '\n');
+	  remove(id, startNode, startNode, startNode);
+	  cout << "Student removed. " << endl;
+	  cout << "" << endl;
 	}
       else if (strcmp(input, "print") == 0)
 	{
+	  // prints student roster
+	  print(startNode, startNode);
+	}
+      else if (strcmp(input, "average") == 0)
+	{
+	  float total = 0.0;
+	  int count = 0;
+	  float mean = 0.0;
+	  average(total, count, mean, startNode, startNode);
 	}
       else if (strcmp(input, "quit") == 0)
 	{
@@ -89,6 +99,7 @@ int main()
 	  cout << "Check your spelling and capitalization and try again." << endl;
 	}
     }
+
   
   return 0;
   
@@ -102,29 +113,32 @@ int main()
 void add(Student* student, Node* prevNode, Node* currentNode,  Node* &startNode)
 {
   Node* head = startNode;
-  Node* newNode = new Node(student);
-  int newID = newNode->getStudent()->getID();
 
   // starting the list
   if (startNode == NULL)
     {
+      Node* newNode = new Node(student);
       startNode = newNode; // the new student gets put into the start node
     }
   // the new node is smaller than the head node
-  else if (newID < startNode->getStudent()->getID())
+  else if (student->getID() < startNode->getStudent()->getID())
     {
+      Node* newNode = new Node(student);
       newNode->setNext(head);
       startNode = newNode;
     }
   // new node is in between previous and current
-  else if (newID > prevNode->getStudent()->getID() && newID < currentNode->getStudent()->getID())
+  else if (student->getID() > prevNode->getStudent()->getID() &&
+	   student->getID() < currentNode->getStudent()->getID())
     {
+      Node* newNode = new Node(student);
       newNode->setNext(currentNode);
       prevNode->setNext(newNode);
     }
   // you reach the end of the linked list
   else if (currentNode->getNext() == NULL)
     {
+      Node* newNode = new Node(student);
       currentNode->setNext(newNode);
     }
   // new node doesn't go in this location
@@ -161,7 +175,15 @@ void remove(int id, Node* prevNode, Node* currentNode, Node* &startNode)
     }
   else
     {
-      remove(id, currentNode, currentNode->getNext(), startNode);
+      if (currentNode->getNext() != NULL)
+	{
+	  remove(id, currentNode, currentNode->getNext(), startNode);
+	}
+      else // id not found
+	{
+	  cout << "ID not found." << endl;
+	  cout << "" << endl;
+	}
     }
 }
 
@@ -196,5 +218,45 @@ void print(Node* nextNode, Node* &startNode)
   else if (nextNode == NULL)
     {
       cout << " " << endl;
+    }
+}
+
+/**
+ * This function walks through the linked list recursively and returns an
+ * average of all students' GPA.
+ */
+void average(float &total, int &count, float mean, Node* currentNode, Node* &startNode)
+{
+  if (startNode != NULL)
+    {
+      // if there is only one item in the linked list
+      if (startNode->getNext() == NULL)
+	{
+	  mean = currentNode->getStudent()->getGPA();
+	  cout.precision(3);
+	  cout.setf(ios::showpoint);
+	  cout << "" << endl;
+	  cout << "Average GPA: " << mean << endl;
+	  cout << "" << endl;
+	}
+      else
+	{
+	  // add current node's GPA to the total
+	  total += currentNode->getStudent()->getGPA();
+	  count++;
+	  if (currentNode->getNext() != NULL)
+	    {
+	      average(total, count, mean, currentNode->getNext(), startNode);
+	    }
+	  else // you have reached the last node in the list
+	    {
+	      mean = (float)(total/count);
+	      cout.precision(3);
+	      cout.setf(ios::showpoint);
+	      cout << "" << endl;
+	      cout << "Average GPA: " << mean << endl;
+	      cout << "" << endl;
+	    }
+	}
     }
 }
